@@ -2,6 +2,7 @@
 # level 3 (TUN) and level 2 (TAP) IP or Ethernet packets.
 
 
+import EthernetFrame as e
 import code
 import os
 import threading
@@ -10,9 +11,7 @@ import fcntl
 import struct
 import subprocess
 
-
 def make_tun(iface):
-
     # Flags from <linux/tun_if.h>
     IFF_TAP = 0x0002
     IFF_NO_PI = 0x1000
@@ -36,11 +35,19 @@ def del_tun(tun):
 def read_tun(tun):
     return os.read(tun, 1518)
 
+def write_tun(tun, data):
+    return os.write(tun, data)
+
 def read_pkts(tun, count):
     pkts = []
     for i in range(count):
         pkts.append(read_tun(tun))
     return pkts
+
+def watch_tun(tun):
+    while True:
+        pkt = read_tun(tun)
+        print(e.EthernetFrame(pkt))
 
 
 if __name__ == "__main__":
